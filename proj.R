@@ -20,6 +20,7 @@ artists = dat$artist
 # remove all but the top 100 artists
 
 dat = dat[is.element(artists, top),]
+dat = dat[!(dat$lyrics == ''),]
 
 write.csv(file="lyrics_munged.csv", x=dat)
 
