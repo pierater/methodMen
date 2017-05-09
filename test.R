@@ -10,15 +10,6 @@ get_words = function(words)
     words = words[!(words == '')]
 }
 
-get_ngrams = function(words, n = 2)
-{
-    if(n == 1)
-    {
-        return(words)
-    }
-    return(get_ngrams(head(paste(words, words[n:length(words)]), -1), n=(n-1)))
-}
-
 get_top_grams = function(grams, n = 10)
 {
     return(head(sort(table(grams), decreasing=TRUE), n))
@@ -27,4 +18,15 @@ get_top_grams = function(grams, n = 10)
 get_bigrams = function(words)
 {
     return(head(paste(words, words[2:length(words)]), -1))
+}
+
+generate_object = function(artist, n = 20)
+{
+    obj = list()
+    all_lyrics = artist$lyrics
+    for(i in 1:length(all_lyrics))
+    {
+        obj[[i]] = get_top_grams(get_bigrams(get_words(all_lyrics[i])), n)
+    }
+    return(obj)
 }
