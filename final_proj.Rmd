@@ -1,0 +1,105 @@
+
+---
+title: "Determining text data relation to Hip-Hop artist lyrics"
+author: "Benito Sanchez, Sammuel Villavicencio, Martin Almaraz"
+date: "May 12, 2017"
+output: html_document
+---
+
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(prompt=TRUE, comment="", echo=TRUE)
+```
+
+Given top 100 Hip-Hop artist lyrical data, we will determine similarity between 
+layman text and artist profiles that we generate using bigrams
+
+## Data exploration
+```{r}
+
+# read origional csv file
+# the file is very large, ~93mb so we will need to do a lot of cleanup
+data = read.csv("lyrics.csv")
+
+# the data file is extremely large, and full of a lot of data we do not need
+nrow(data)
+
+# it also includes many collumns that are unimportant to us
+names(data)
+# We can remove index, year, genre, and X as they will not help us
+
+```
+
+## Preproccessing and data munging
+```{r}
+
+# since our data includes many genres of music, we will need to remove anything but Hip-Hop
+data = data[data$genre == "Hip-Hop",]
+
+# we will also need to remove any unessesary collumns in the data.frame
+data$index = NULL
+data$year = NULL
+data$genre = NULL
+data$X = NULL
+
+
+# now we will further reduce our data set to only the top 100 artists that we have data for
+top = names(head(sort(table(data$artist), decreasing=TRUE), 100))
+artists = data$artist
+
+# remove all but top 100 artists
+data = data[is.element(artists, top),]
+data = data[!(data$lyrics == ''),]
+
+```
+
+
+## Create helper functions for creating ngrams, sorting and generating artist objects
+```{r}
+
+# splits lyrics into a vector of words without grammar
+get_words = function(words)
+{
+    words = scan(text = words, what = 'character', quote = '')
+    words = gsub('[^a-zA-Z]*', '', words)
+    words = tolower(words)
+    words = words[!(words == '')]
+
+    return(words)
+}
+
+# getting top n grams and returning a table
+get_top_grams = function(grams, n = 10)
+{
+    return(head(sort(table(grams), decreasing=TRUE), n))
+}
+
+# create bigrams from vector of words
+get_bigrams = function(words)
+{
+    return(head(paste(words, words[2:length(words)]), -1))
+}
+
+# create an artist object that is a list of tables where each table includes the top bigrams per song
+generate_object = function(artist, n = 20)
+{
+    obj = list()
+    all_lyrics = artist$lyrics
+    for(i in 1:length(all_lyrics))
+    {
+        obj[[i]] = get_top_grams(get_bigrams(get_words(all_lyrics[i])), n)
+    }
+
+    return(obj)
+}
+```
+
+## creating profiles for two case artists Eminem and Childish Gambino
+```{r}
+eminem = data[data$artist == "eminem",]
+gambino = data[data$artist == "childish-gambino",]
+
+# getting generated objects for each artist and bigrams
+em_obj = generate_object(eminem)
+gam_obj = generate_object(gambino)
+```
