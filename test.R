@@ -4,7 +4,6 @@ gambino = dat[dat$artist == "childish-gambino",]
 
 get_words = function(words)
 {
-    words = words[!(words == '')]
     words = scan(text = words, what='character', quote='')
     words = gsub('[^a-zA-Z]*', '', words)
     words = tolower(words)
