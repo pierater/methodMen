@@ -16,10 +16,15 @@ get_ngrams = function(words, n = 2)
     {
         return(words)
     }
-    return(get_ngrams(head(paste(words, words[n:length(words)]), -1), n = n-1))
+    return(get_ngrams(head(paste(words, words[n:length(words)]), -1), n=(n-1)))
 }
 
 get_top_grams = function(grams, n = 10)
 {
     return(head(sort(table(grams), decreasing=TRUE), n))
+}
+
+get_bigrams = function(words)
+{
+    return(head(paste(words, words[2:length(words)]), -1))
 }
