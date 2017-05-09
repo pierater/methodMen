@@ -8,6 +8,7 @@ dat = dat[dat$genre == "Hip-Hop",]
 dat$index = NULL
 dat$year = NULL
 dat$genre = NULL
+dat$X = NULL
 
 # only work with top 100 artists (via data set)
 
