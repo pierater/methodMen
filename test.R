@@ -61,7 +61,7 @@ normalize_list= function(percentages) {
     return ((percentages-min(percentages))/(max(percentages)-min(percentages)))
 }
 
-obj = generate_object(gambino, 20)
+obj = generate_object(gambino, 40)
 
 
 l = get_top_eighty(obj)
