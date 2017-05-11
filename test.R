@@ -30,3 +30,40 @@ generate_object = function(artist, n = 20)
     }
     return(obj)
 }
+
+get_usage_of_grams_per_lyric = function(list) {
+  l = c();
+  for(r in 1:length(list)) {
+    for (c in 1:length(list[[r]])) {
+      word = names(list[[r]][c])
+      if(is.null(l)) {
+        l = c(1)
+        names(l) = word
+      } else if(is.na(l[word])) {
+        l[word] = c(word)
+        l[word] = 1
+      } else {
+        l[word] = sum(as.numeric(l[word]), 1)
+      }
+    }
+  }
+  return (l)
+}
+
+get_top_eighty = function(list) {
+  countGrams = get_usage_of_grams_per_lyric(list)
+  countGrams = sort(countGrams, decreasing = T)
+  percentages = as.numeric(countGrams) / length(list)
+  return (percentages)
+}
+
+normalize_list= function(percentages) {
+    return ((percentages-min(percentages))/(max(percentages)-min(percentages)))
+}
+
+obj = generate_object(gambino, 20)
+
+
+l = get_top_eighty(obj)
+
+p = normalize_list(l)
