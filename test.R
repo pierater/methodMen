@@ -12,7 +12,12 @@ get_words = function(words)
 
 get_top_grams = function(grams, n = 10)
 {
-    return(head(sort(table(grams), decreasing=TRUE), n))
+    grams_per_song = sort(table(grams), decreasing = T)
+    for (i in 1:length(grams_per_song)) {
+        grams_per_song[names(grams_per_song[i])] = as.numeric(grams_per_song[i]) / length(grams_per_song)
+    
+    }
+    return(head(grams_per_song, n))
 }
 
 get_bigrams = function(words)
