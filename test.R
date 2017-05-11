@@ -57,6 +57,10 @@ get_top_eighty = function(list) {
   return (percentages)
 }
 
+count_of_grams_to_percentage = function(list_of_grams) {
+    return (as.numeric(list_of_grams) / length(list_of_grams))
+}
+
 normalize_list= function(percentages) {
     return ((percentages-min(percentages))/(max(percentages)-min(percentages)))
 }
@@ -67,3 +71,4 @@ obj = generate_object(gambino, 20)
 l = get_top_eighty(obj)
 
 p = normalize_list(l)
+c = count_of_grams_to_percentage(obj[[1]])
