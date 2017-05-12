@@ -22,7 +22,16 @@ get_num_lines = function(lyric) {
 }
 
 get_words_per_line = function(lyric) {
-    return(sum(sapply(unlist(strsplit(lyric, '\n', fixed=TRUE)), get_num_words_in_lyric)))
+    return(mean(sapply(unlist(strsplit(lyric, '\n', fixed=TRUE)), get_num_words_in_lyric)))
+}
+
+create_data = function(data) {
+    data$words_line = sapply(data[,"lyrics"], get_words_per_line)
+    data$num_lines = sapply(data[,"lyrics"], get_num_lines)
+    data$num_unique = sapply(data[,"lyrics"], get_num_unique_words)
+    data$num_commas = sapply(data[,"lyrics"], get_num_of_commas)
+    data$num_words_total = sapply(data[,"lyrics"], get_num_words_in_lyric)
+    return(data)
 }
 
 get_words = function(words)
