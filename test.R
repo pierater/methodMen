@@ -1,6 +1,17 @@
+library(stringr)
+
+
 dat = read.csv("lyrics_munged.csv", stringsAsFactors=FALSE)
 eminem = dat[dat$artist == "eminem",]
 gambino = dat[dat$artist == "childish-gambino",]
+
+get_num_words_in_lyric = function(lyric) {
+    return(sapply(gregexpr("\\W+", lyric), length) + 1)
+}
+
+get_num_of_commas = function(lyric) {
+    return (str_count(lyric, ','))
+}
 
 get_words = function(words)
 {
@@ -72,3 +83,10 @@ l = get_top_eighty(obj)
 
 p = normalize_list(l)
 c = count_of_grams_to_percentage(obj[[1]])
+
+
+# Testing number of words given one of eminem's lyrics
+n = get_num_words_in_lyric(eminem$lyrics[1])
+
+# Number of commas
+nc = get_num_of_commas(eminem$lyrics[1]) 
