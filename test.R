@@ -14,7 +14,15 @@ get_num_of_commas = function(lyric) {
 }
 
 get_num_unique_words = function(lyric) {
-    return(length(table(get_words(lyrics))))
+    return(length(table(get_words(lyric))))
+}
+
+get_num_lines = function(lyric) {
+    return(str_count(lyric, '\n') + 1)
+}
+
+get_words_per_line = function(lyric) {
+    return(sum(sapply(unlist(strsplit(lyric, '\n', fixed=TRUE)), get_num_words_in_lyric)))
 }
 
 get_words = function(words)
