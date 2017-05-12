@@ -1,6 +1,21 @@
+library(stringr)
+
+
 dat = read.csv("lyrics_munged.csv", stringsAsFactors=FALSE)
 eminem = dat[dat$artist == "eminem",]
 gambino = dat[dat$artist == "childish-gambino",]
+
+get_num_words_in_lyric = function(lyric) {
+    return(sapply(gregexpr("\\W+", lyric), length) + 1)
+}
+
+get_num_of_commas = function(lyric) {
+    return (str_count(lyric, ','))
+}
+
+get_num_unique_words = function(lyric) {
+    return(length(table(get_words(lyrics))))
+}
 
 get_words = function(words)
 {
@@ -62,6 +77,10 @@ get_top_eighty = function(list) {
   return (percentages)
 }
 
+count_of_grams_to_percentage = function(list_of_grams) {
+    return (as.numeric(list_of_grams) / length(list_of_grams))
+}
+
 normalize_list= function(percentages) {
     return ((percentages-min(percentages))/(max(percentages)-min(percentages)))
 }
@@ -72,3 +91,14 @@ obj = generate_object(gambino, 20)
 l = get_top_eighty(obj)
 
 p = normalize_list(l)
+c = count_of_grams_to_percentage(obj[[1]])
+
+
+# Testing number of words given one of eminem's lyrics
+n = get_num_words_in_lyric(eminem$lyrics[1])
+
+# Number of commas
+nc = get_num_of_commas(eminem$lyrics[1]) 
+
+# Number of unique words
+nu = get_num_unique_words(eminem$lyrics[1])
