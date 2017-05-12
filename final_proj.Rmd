@@ -132,6 +132,13 @@ tr_dat = data_sets[[1]]
 test_dat = data_sets[[2]]
 
 # create models
+library(rpart)
+library(rpart.plot)
+source('lin-regr-util.R')
+
+x = split_data(data)
+tr_dat = x[[1]]
+te_dat = x[[2]]
 
 ```
 
@@ -145,8 +152,16 @@ test_dat = data_sets[[2]]
 ## Evaluating the classification tree model
 ```{r}
 # make a graph
+tree = rpart(artist ~ ., data = tr_dat, method='class')
+prp(tree, extra=106, varlen=-10, main="Decide whether a song is by Eminem or Childish Gambino", box.col=c("brickred", "lightblue")[tree$frame$yval])
+
 # do a summary
+summary(tree)
+
 # test accuracy
+pred = predict(tree, te_dat, type='class')
+table(te_dat$artist, pred)
+mean(te_dat$artist == pred)
 ```
 ## deciding on what worked best and why
 ```{r}
