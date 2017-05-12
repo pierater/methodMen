@@ -13,6 +13,10 @@ get_num_of_commas = function(lyric) {
     return (str_count(lyric, ','))
 }
 
+get_num_unique_words = function(lyric) {
+    return(length(table(get_words(lyrics))))
+}
+
 get_words = function(words)
 {
     words = scan(text = words, what='character', quote='')
@@ -90,3 +94,6 @@ n = get_num_words_in_lyric(eminem$lyrics[1])
 
 # Number of commas
 nc = get_num_of_commas(eminem$lyrics[1]) 
+
+# Number of unique words
+nu = get_num_unique_words(eminem$lyrics[1])
