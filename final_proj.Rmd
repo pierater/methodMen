@@ -55,7 +55,7 @@ data = data[!(data$lyrics == ''),]
 ```
 
 
-## Create helper functions for creating ngrams, sorting and generating features from our data
+## Create helper functions for sorting and generating features from our data
 Since we only have lyrics per song and artist, we need to create more features to work with.
 
 Some noteable features we can create are:
@@ -107,6 +107,27 @@ data = create_data(data)
 
 ## Creating our models Knn and classification tree
 ```{r}
+# split into training and test data with a 80/20 split respectively
+# split-data function sourced from Dr. Bruns lin-regr-util.R
+split_data = function(dat, frac=c(0.75, 0.25)) {
+    k = length(frac)
+    stopifnot(k > 0)
+
+    n = nrow(dat)
+    frac = frac/(sum(frac))
+    starts = c(1, round(cumsum(frac) * n)[-k])
+    ends = c(starts[-1]-1,n)
+    samp = sample(1:n)
+    data_sets = list()
+    for(i in 1:k) {
+        data_sets[[i]] = dat[samp[starts[i]:ends[i]],]
+    }
+    return(data_sets)
+}
+
+data_sets = split_data(data, c(0.80, 0.20))
+tr_dat = data_sets[[1]]
+test_dat = data_sets[[2]]
 
 # create models
 
