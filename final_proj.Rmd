@@ -11,8 +11,8 @@ output: html_document
 knitr::opts_chunk$set(prompt=TRUE, comment="", echo=TRUE)
 ```
 
-Given top 100 Hip-Hop artist lyrical data, we will determine similarity between 
-layman text and artist profiles that we generate using bigrams
+Given top 100 Hip-Hop artist lyrical data, we plan to create and compare both 
+the usage of a Knn classifier and classification tree
 
 ## Data exploration
 ```{r}
@@ -41,6 +41,7 @@ data$index = NULL
 data$year = NULL
 data$genre = NULL
 data$X = NULL
+data$song = NULL
 
 
 # now we will further reduce our data set to only the top 100 artists that we have data for
@@ -54,52 +55,77 @@ data = data[!(data$lyrics == ''),]
 ```
 
 
-## Create helper functions for creating ngrams, sorting and generating artist objects
+## Create helper functions for creating ngrams, sorting and generating features from our data
+Since we only have lyrics per song and artist, we need to create more features to work with.
+
+Some noteable features we can create are:
+    number of words per song
+    number of commas per song
+    number of unique words per song
+    number of lines per song
+
+So we created functions to calculate these features and add them to the current data
 ```{r}
 
-# splits lyrics into a vector of words without grammar
-get_words = function(words)
-{
-    words = scan(text = words, what = 'character', quote = '')
-    words = gsub('[^a-zA-Z]*', '', words)
-    words = tolower(words)
-    words = words[!(words == '')]
-
-    return(words)
+# get number of words per lyric
+get_num_words_in_lyric = function(lyric) {
+    return(sapply(gregexpr("\\W+", lyric), length) + 1)
 }
 
-# getting top n grams and returning a table
-get_top_grams = function(grams, n = 10)
-{
-    return(head(sort(table(grams), decreasing=TRUE), n))
+# get number of commas per song
+get_num_of_commas = function(lyric) {
+    return (str_count(lyric, ','))
 }
 
-# create bigrams from vector of words
-get_bigrams = function(words)
-{
-    return(head(paste(words, words[2:length(words)]), -1))
+# number of unique words used per song
+get_num_unique_words = function(lyric) {
+    return(length(table(get_words(lyric))))
 }
 
-# create an artist object that is a list of tables where each table includes the top bigrams per song
-generate_object = function(artist, n = 20)
-{
-    obj = list()
-    all_lyrics = artist$lyrics
-    for(i in 1:length(all_lyrics))
-    {
-        obj[[i]] = get_top_grams(get_bigrams(get_words(all_lyrics[i])), n)
-    }
-
-    return(obj)
+# get number of lines per song
+get_num_lines = function(lyric) {
+    return(str_count(lyric, '\n') + 1)
 }
+
+# get number of words per line per song
+get_words_per_line = function(lyric) {
+    return(mean(sapply(unlist(strsplit(lyric, '\n', fixed=TRUE)), get_num_words_in_lyric)))
+}
+
+# add these new features to our data frame
+create_data = function(data) {
+    data$words_line = sapply(data[,"lyrics"], get_words_per_line)
+    data$num_lines = sapply(data[,"lyrics"], get_num_lines)
+    data$num_unique = sapply(data[,"lyrics"], get_num_unique_words)
+    data$num_commas = sapply(data[,"lyrics"], get_num_of_commas)
+    data$num_words_total = sapply(data[,"lyrics"], get_num_words_in_lyric)
+    return(data)
+}
+
+data = create_data(data)
 ```
 
-## creating profiles for two case artists Eminem and Childish Gambino
+## Creating our models Knn and classification tree
 ```{r}
-eminem = data[data$artist == "eminem",]
-gambino = data[data$artist == "childish-gambino",]
 
-# getting generated objects for each artist and bigrams
-em_obj = generate_object(eminem)
-gam_obj = generate_object(gambino)
+# create models
+
+```
+
+## Evaluating the Knn model
+```{r}
+# make a graph
+# do a summary
+# test accuracy
+```
+
+## Evaluating the classification tree model
+```{r}
+# make a graph
+# do a summary
+# test accuracy
+```
+## deciding on what worked best and why
+```{r}
+# how we will do this?
 ```
