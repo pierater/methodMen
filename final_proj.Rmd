@@ -22,6 +22,8 @@ the usage of a Knn classifier and classification tree
 data = read.csv("lyrics.csv")
 library("caret")
 library("stringr")
+library(rpart)
+library(rpart.plot)
 
 # the data file is extremely large, and full of a lot of data we do not need
 nrow(data)
@@ -101,6 +103,7 @@ create_data = function(data) {
     data$num_unique = sapply(data[,"lyrics"], get_num_unique_words)
     data$num_commas = sapply(data[,"lyrics"], get_num_of_commas)
     data$num_words_total = sapply(data[,"lyrics"], get_num_words_in_lyric)
+    data$lyrics = NULL
     return(data)
 }
 
@@ -132,27 +135,30 @@ tr_dat = data_sets[[1]]
 test_dat = data_sets[[2]]
 
 # create models
-library(rpart)
-library(rpart.plot)
-source('lin-regr-util.R')
 
 x = split_data(data)
 tr_dat = x[[1]]
 te_dat = x[[2]]
 
+tree = rpart(artist ~ ., data = tr_dat, method='class')
+
+knn_model = train(artist ~ ., data = tr_dat, method="knn")
 ```
 
 ## Evaluating the Knn model
 ```{r}
 # make a graph
+
 # do a summary
 # test accuracy
+predicted_knn = predict(knn_model, newdata=te_dat)
+table(te_dat$artist, predicted_knn)
+mean(te_dat$artist == predicted_knn)
 ```
 
 ## Evaluating the classification tree model
 ```{r}
 # make a graph
-tree = rpart(artist ~ ., data = tr_dat, method='class')
 prp(tree, extra=106, varlen=-10, main="Decide whether a song is by Eminem or Childish Gambino", box.col=c("brickred", "lightblue")[tree$frame$yval])
 
 # do a summary
