@@ -1,5 +1,5 @@
 library(stringr)
-
+library(caret)
 
 dat = read.csv("lyrics_munged.csv", stringsAsFactors=FALSE)
 eminem = dat[dat$artist == "eminem",]
@@ -11,6 +11,14 @@ get_num_words_in_lyric = function(lyric) {
 
 get_num_of_commas = function(lyric) {
     return (str_count(lyric, ','))
+}
+
+get_words = function(words)
+{
+    words = scan(text = words, what='character', quote='')
+    words = gsub('[^a-zA-Z]*', '', words)
+    words = tolower(words)
+    words = words[!(words == '')]
 }
 
 get_num_unique_words = function(lyric) {
@@ -34,13 +42,14 @@ create_data = function(data) {
     return(data)
 }
 
-get_words = function(words)
-{
-    words = scan(text = words, what='character', quote='')
-    words = gsub('[^a-zA-Z]*', '', words)
-    words = tolower(words)
-    words = words[!(words == '')]
-}
+dd = create_data(eminem)
+dat <- sample(1:nrow(dd),as.integer(0.7*nrow(dd)))
+tr_dat = dd[dat,]
+te_dat = dd[-dat,]
+
+fit = train(artist ~ words_line + num_lines + num_unique + num_commas + num_words_total, data=tr_dat, method="knn")
+
+predicts = predict(fit, newdata=te_dat)
 
 get_top_grams = function(grams, n = 10)
 {
@@ -102,20 +111,20 @@ normalize_list= function(percentages) {
     return ((percentages-min(percentages))/(max(percentages)-min(percentages)))
 }
 
-obj = generate_object(gambino, 20)
+#obj = generate_object(gambino, 20)
 
 
-l = get_top_eighty(obj)
+#l = get_top_eighty(obj)
 
-p = normalize_list(l)
-c = count_of_grams_to_percentage(obj[[1]])
+#p = normalize_list(l)
+#c = count_of_grams_to_percentage(obj[[1]])
 
 
 # Testing number of words given one of eminem's lyrics
-n = get_num_words_in_lyric(eminem$lyrics[1])
+#n = get_num_words_in_lyric(eminem$lyrics[1])
 
 # Number of commas
-nc = get_num_of_commas(eminem$lyrics[1]) 
+#nc = get_num_of_commas(eminem$lyrics[1]) 
 
 # Number of unique words
-nu = get_num_unique_words(eminem$lyrics[1])
+#nu = get_num_unique_words(eminem$lyrics[1])
