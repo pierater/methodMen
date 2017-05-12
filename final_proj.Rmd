@@ -19,7 +19,7 @@ the usage of a Knn classifier and classification tree
 
 # read origional csv file
 # the file is very large, ~93mb so we will need to do a lot of cleanup
-data = read.csv("lyrics.csv")
+data = read.csv("lyrics.csv", stringsAsFactors = F)
 library("caret")
 library("stringr")
 library(rpart)
@@ -49,7 +49,7 @@ data$song = NULL
 
 
 # now we will further reduce our data set to only the top 100 artists that we have data for
-top = names(head(sort(table(data$artist), decreasing=TRUE), 100))
+top = names(head(sort(table(data$artist), decreasing=TRUE), 2))
 artists = data$artist
 
 # remove all but top 100 artists
@@ -79,6 +79,15 @@ get_num_words_in_lyric = function(lyric) {
 # get number of commas per song
 get_num_of_commas = function(lyric) {
     return (str_count(lyric, ','))
+}
+
+
+get_words = function(words)
+{
+    words = scan(text = words, what='character', quote='')
+    words = gsub('[^a-zA-Z]*', '', words)
+    words = tolower(words)
+    words = words[!(words == '')]
 }
 
 # number of unique words used per song
@@ -142,7 +151,7 @@ te_dat = x[[2]]
 
 tree = rpart(artist ~ ., data = tr_dat, method='class')
 
-knn_model = train(artist ~ ., data = tr_dat, method="knn")
+knn_model = train(artist ~ ., data = tr_dat, method="knn", tuneLength = 10)
 ```
 
 ## Evaluating the Knn model
@@ -150,6 +159,7 @@ knn_model = train(artist ~ ., data = tr_dat, method="knn")
 # make a graph
 
 # do a summary
+summary(knn_model)
 # test accuracy
 predicted_knn = predict(knn_model, newdata=te_dat)
 table(te_dat$artist, predicted_knn)
@@ -159,7 +169,7 @@ mean(te_dat$artist == predicted_knn)
 ## Evaluating the classification tree model
 ```{r}
 # make a graph
-prp(tree, extra=106, varlen=-10, main="Decide whether a song is by Eminem or Childish Gambino", box.col=c("brickred", "lightblue")[tree$frame$yval])
+prp(tree, extra=106, varlen=-10, main="Decide whether a song is by Eminem or Childish Gambino", box.col=c("red4", "lightblue")[tree$frame$yval])
 
 # do a summary
 summary(tree)
