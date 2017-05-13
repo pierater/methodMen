@@ -183,7 +183,13 @@ Training tests on different number of k values and the k value with the best acc
 ```{r}
 plot(knn_model, main = "Accuray vs. Knn value")
 
+d = dist(data)
+fit = cmdscale(d)
+plot(fit[data$artist == 'chris-brown'], col='orange')
+points(fit[data$artist == 'eminem'], col='green')
+
 summary(knn_model)
+
 predicted_knn = predict(knn_model, newdata=te_dat)
 table(te_dat$artist, predicted_knn)
 mean(te_dat$artist == predicted_knn)
