@@ -119,6 +119,27 @@ create_data = function(data) {
 data = create_data(data)
 ```
 
+### Data Exploration
+
+```{r}
+
+  barplot(head(sort(table(data$artist), decreasing = T), 5), horiz = T, las = 1, xlab = "Number of songs per artist", ylab = "Artist")
+
+```
+
+```{r}
+  mfrow = c(1,4)
+  par(mfrow)
+  
+  eminem = colMeans(data[data$artist == "eminem", c("num_words_total", "num_unique", "words_line", "num_lines", "num_commas")])
+  
+  barplot(eminem, horiz = T, las = 1)
+  
+  chrisBrown = colMeans(data[data$artist == "chris-brown", c("num_words_total", "num_unique", "words_line", "num_lines", "num_commas")])
+  
+  barplot(chrisBrown, horiz = T, las = 1)
+```
+
 ## Creating our models Knn and classification tree
 ```{r}
 # split into training and test data with a 80/20 split respectively
@@ -169,7 +190,7 @@ mean(te_dat$artist == predicted_knn)
 ## Evaluating the classification tree model
 ```{r}
 # make a graph
-prp(tree, extra=106, varlen=-10, main="Decide whether a song is by Eminem or Childish Gambino", box.col=c("red4", "lightblue")[tree$frame$yval])
+prp(tree, extra=106, varlen=-10, main="Decide whether a song is by Eminem or Chris Brown", box.col=c("red4", "lightblue")[tree$frame$yval])
 
 # do a summary
 summary(tree)
