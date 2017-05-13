@@ -11,48 +11,45 @@ output: html_document
 knitr::opts_chunk$set(prompt=TRUE, comment="", echo=TRUE)
 ```
 
-Given top 100 Hip-Hop artist lyrical data, we plan to create and compare both 
-the usage of a Knn classifier and classification tree
+In 2013, Robert Galbraith published the novel The Cuckoo's Calling. It was later discovered through linguistic analysis that Robert Galbraith was just a pen name used by JK Rowling, the author of Harry Potter. This analysis flows through a similar vein. We sought to predict the artist of a song based on the form of their lyrics.
 
 ## Data Acquisition
+The data set of nearly 400,000 songs and lyrics was acquired through MetroLyrics and hosted by kaggle.
 ```{r}
 
-# read origional csv file
-# the file is very large, ~93mb so we will need to do a lot of cleanup
+# read csv
 data = read.csv("lyrics.csv", stringsAsFactors = F)
 library("caret")
 library("stringr")
 library(rpart)
 library(rpart.plot)
 
-# the data file is extremely large, and full of a lot of data we do not need
+# the data has some features we do not need and others we need to generate
 nrow(data)
 
-# it also includes many collumns that are unimportant to us
+# it also includes many columns that are unimportant to us
 names(data)
-# We can remove index, year, genre, and X as they will not help us
 
 ```
 
-## Preproccessing and data munging
+## Preprocessing and data munging
+We decided to focus on the two hip-hop artists with the most lyrics.
 ```{r}
 
+# remove index, year, genre, and X as they will not help us
 # since our data includes many genres of music, we will need to remove anything but Hip-Hop
 data = data[data$genre == "Hip-Hop",]
 
-# we will also need to remove any unessesary collumns in the data.frame
+# remove any unessesary columns in the dataframe
 data$index = NULL
 data$year = NULL
 data$genre = NULL
 data$X = NULL
 data$song = NULL
 
-
-# now we will further reduce our data set to only the top 100 artists that we have data for
+# remove all but top two artists
 top = names(head(sort(table(data$artist), decreasing=TRUE), 2))
 artists = data$artist
-
-# remove all but top 100 artists
 data = data[is.element(artists, top),]
 data = data[!(data$lyrics == ''),]
 
@@ -60,15 +57,9 @@ data = data[!(data$lyrics == ''),]
 
 
 ## Create helper functions for sorting and generating features from our data
-Since we only have lyrics per song and artist, we need to create more features to work with.
+The features we selected include the number of words per song, the number of commas per song, the number of unique words per song, the number of lines per song and the number of words per line.
 
-Some noteable features we can create are:
-    number of words per song
-    number of commas per song
-    number of unique words per song
-    number of lines per song
-
-So we created functions to calculate these features and add them to the current data
+We created functions to calculate these features and bind them to the dataframe.
 ```{r}
 
 # get number of words per lyric
@@ -80,7 +71,6 @@ get_num_words_in_lyric = function(lyric) {
 get_num_of_commas = function(lyric) {
     return (str_count(lyric, ','))
 }
-
 
 get_words = function(words)
 {
