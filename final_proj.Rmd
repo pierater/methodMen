@@ -19,7 +19,7 @@ the usage of a Knn classifier and classification tree
 
 # read origional csv file
 # the file is very large, ~93mb so we will need to do a lot of cleanup
-data = read.csv("lyrics.csv")
+data = read.csv("lyrics_munged.csv")
 
 # the data file is extremely large, and full of a lot of data we do not need
 nrow(data)
@@ -45,7 +45,7 @@ data$song = NULL
 
 
 # now we will further reduce our data set to only the top 100 artists that we have data for
-top = names(head(sort(table(data$artist), decreasing=TRUE), 100))
+top = names(head(sort(table(data$artist), decreasing=TRUE), 2))
 artists = data$artist
 
 # remove all but top 100 artists
@@ -143,6 +143,10 @@ te_dat = x[[2]]
 ## Evaluating the Knn model
 ```{r}
 # make a graph
+d = dist(data)
+fit = cmdscale(d)
+plot(fit[data$artist == 'chris-brown'], col='orange')
+points(fit[data$artist == 'eminem'], col='green')
 # do a summary
 # test accuracy
 ```
