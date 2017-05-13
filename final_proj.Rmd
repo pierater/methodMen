@@ -215,3 +215,9 @@ table(te_dat$artist, pred)
 # The classification tree tended to work slightly better than the  knn model
 mean(te_dat$artist == pred)
 ```
+
+## Conclusion
+Our final results show that when given a sample text, or unknown lyric, we can with good accuracy determine if it falls more as an Eminem song, or Chris Brown song. Furthermore when we try to adapt our models to work with the rest of the subset of artists, we find that our accuracy falls extremely poor. When classifying 5 or more artists, we find that accuracy falls into the single digit percentile, around 6%. 
+
+## Further exploration
+In order to improve our accuracy for more than just two artist classes, we believe we must find much better features to examine. What may help us is speaking to a linguist, or someone generally more knowledgeable than us who can identify better ways to breakdown lyrics.
