@@ -13,6 +13,10 @@ knitr::opts_chunk$set(prompt=TRUE, comment="", echo=TRUE)
 
 In 2013, Robert Galbraith published the novel The Cuckoo's Calling. It was later discovered through linguistic analysis that Robert Galbraith was just a pen name used by JK Rowling, the author of Harry Potter. This analysis flows through a similar vein. We sought to predict the artist of a song based on the form of their lyrics.
 
+
+The data was aquired from: 
+https://www.kaggle.com/gyani95/380000-lyrics-from-metrolyrics
+
 ## Data Acquisition
 The data set of nearly 400,000 songs and lyrics was acquired through MetroLyrics and hosted by kaggle.
 ```{r}
@@ -24,10 +28,10 @@ library("stringr")
 library(rpart)
 library(rpart.plot)
 
-# the data has some features we do not need and others we need to generate
+# the data seems to be very large at first...
 nrow(data)
 
-# it also includes many columns that are unimportant to us
+# but it includes many collums that we do not need, and genres we do not care for
 names(data)
 
 ```
@@ -110,7 +114,8 @@ data = create_data(data)
 ```
 
 ### Data Exploration
-
+We compare different aspects of these two artists such as shear amount of data that we have on each.
+This is vital in creating accurate models and features in that we have more data to train and test with.
 ```{r}
   par(mar=c(5.1, max(4.1, max(nchar(names(data)))/1.8), 4.1, 2.1))
   barplot(head(sort(table(data$artist), decreasing = T), 2), horiz = T, las = 1, xlab = "Number of songs per artist", ylab = "Artist", col = c("green4", "red4", "blue4", "orange4"), main = "Number of songs per top 2 artists")
@@ -119,6 +124,8 @@ data = create_data(data)
 
 
 ### Comparing features sizes for top 2 artists
+An interesting thing to note on the feature data is that Eminem tends to have
+much larger values for each of his features.
 ```{r}
   
   eminem = colMeans(data[data$artist == "eminem", c("num_words_total", "num_unique", "words_line", "num_lines", "num_commas")])
@@ -169,7 +176,11 @@ knn_model = train(artist ~ ., data = tr_dat, method="knn", tuneLength = 10)
 
 ## Evaluating the Knn model
 
-Training tests on different number of k values and the k value with the best accuracy is chosen. Here we see that k = 11 gives the best accuracy.
+Training tests on different number of k values and the k value with the best accuracy is chosen. Here we see that k = 12 gives the best accuracy.
+
+The scatterplot representing the knn model shows us very interesting results also.
+It looks like the boundary for Eminem vs Chris Brown is oddly overlapped. This could be because
+we scale the 5 features that the knn model uses into 2, which leads to odd artifacts.
 ```{r}
 plot(knn_model, main = "Accuray vs. Knn value")
 
@@ -179,15 +190,20 @@ plot(fit[data$artist == 'chris-brown'], col='orange', xlab='Property 1', ylab='P
 points(fit[data$artist == 'eminem'], col='green')
 legend('topright', legend=c('Chris Brown', 'Eminem'), col=c('orange', 'green'), pch=1)
 
-# do a summary
+
 summary(knn_model)
 
 predicted_knn = predict(knn_model, newdata=te_dat)
 table(te_dat$artist, predicted_knn)
+
+# Decent accuracy, we find approxamatly 83%
 mean(te_dat$artist == predicted_knn)
 ```
 
 ## Evaluating the classification tree model
+The tree model gives us very interesting data on how the two artists structure their songs.
+It seems that the main difference between the two artists is that Eminem tends to use more unique words per song, more lines per song, more words, and basically more of all the features we have. 
+This is very close to what our barplots showed us earlier in the report.
 ```{r}
 prp(tree, extra=106, varlen=-10, main="Decide whether a song is by Eminem or Chris Brown", box.col=c("red4", "lightblue")[tree$frame$yval])
 
@@ -195,9 +211,7 @@ summary(tree)
 
 pred = predict(tree, te_dat, type='class')
 table(te_dat$artist, pred)
+
+# The classification tree tended to work slightly better than the  knn model
 mean(te_dat$artist == pred)
-```
-## deciding on what worked best and why
-```{r}
-# how we will do this?
 ```
