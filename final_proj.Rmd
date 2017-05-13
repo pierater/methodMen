@@ -180,8 +180,10 @@ knn_model = train(artist ~ ., data = tr_dat, method="knn", tuneLength = 10)
 # make a graph
 d = dist(data)
 fit = cmdscale(d)
-plot(fit[data$artist == 'chris-brown'], col='orange')
+plot(fit[data$artist == 'chris-brown'], col='orange', xlab='Property 1', ylab='Property 2')
 points(fit[data$artist == 'eminem'], col='green')
+legend('topright', legend=c('Chris Brown', 'Eminem'), col=c('orange', 'green'), pch=1, main='Songs by Eminem vs Chris Brown')
+
 # do a summary
 summary(knn_model)
 # test accuracy
