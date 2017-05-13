@@ -122,23 +122,23 @@ data = create_data(data)
 ### Data Exploration
 
 ```{r}
-
-  barplot(head(sort(table(data$artist), decreasing = T), 4), horiz = T, las = 1, xlab = "Number of songs per artist", ylab = "Artist", col = c("green4", "red4", "blue4", "orange4"), main = "Number of songs per top 4 artists")
+  par(mar=c(5.1, max(4.1, max(nchar(names(data)))/1.8), 4.1, 2.1))
+  barplot(head(sort(table(data$artist), decreasing = T), 2), horiz = T, las = 1, xlab = "Number of songs per artist", ylab = "Artist", col = c("green4", "red4", "blue4", "orange4"), main = "Number of songs per top 2 artists")
 
 ```
 
 
 ### Comparing features sizes for top 2 artists
 ```{r}
-  mfrow = c(1,4)
-  par(mfrow)
   
   eminem = colMeans(data[data$artist == "eminem", c("num_words_total", "num_unique", "words_line", "num_lines", "num_commas")])
   
+par(mar=c(5.1, max(4.1, max(nchar(names(data)))/1.8), 4.1, 2.1))
   barplot(eminem, horiz = T, las = 1, col = c("green4", "red4", "blue4", "orange4", "pink4"), main = "Comparing feature sizes for Eminem")
   
   chrisBrown = colMeans(data[data$artist == "chris-brown", c("num_words_total", "num_unique", "words_line", "num_lines", "num_commas")])
   
+  par(mar=c(5.1, max(4.1, max(nchar(names(data)))/1.8), 4.1, 2.1))
   barplot(chrisBrown, horiz = T, las = 1, col =  c("green4", "red4", "blue4", "orange4", "pink4"), main = "Comparing feature sizes for Chris Brown")
 ```
 
@@ -185,9 +185,9 @@ plot(knn_model, main = "Accuray vs. Knn value")
 
 d = dist(data)
 fit = cmdscale(d)
-plot(fit[data$artist == 'chris-brown'], col='orange', xlab='Property 1', ylab='Property 2')
+plot(fit[data$artist == 'chris-brown'], col='orange', xlab='Property 1', ylab='Property 2', main='Songs by Eminem vs Chris Brown')
 points(fit[data$artist == 'eminem'], col='green')
-legend('topright', legend=c('Chris Brown', 'Eminem'), col=c('orange', 'green'), pch=1, main='Songs by Eminem vs Chris Brown')
+legend('topright', legend=c('Chris Brown', 'Eminem'), col=c('orange', 'green'), pch=1)
 
 # do a summary
 summary(knn_model)
