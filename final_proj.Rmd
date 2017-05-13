@@ -19,7 +19,11 @@ the usage of a Knn classifier and classification tree
 
 # read origional csv file
 # the file is very large, ~93mb so we will need to do a lot of cleanup
-data = read.csv("lyrics_munged.csv")
+data = read.csv("lyrics.csv", stringsAsFactors = F)
+library("caret")
+library("stringr")
+library(rpart)
+library(rpart.plot)
 
 # the data file is extremely large, and full of a lot of data we do not need
 nrow(data)
@@ -77,6 +81,15 @@ get_num_of_commas = function(lyric) {
     return (str_count(lyric, ','))
 }
 
+
+get_words = function(words)
+{
+    words = scan(text = words, what='character', quote='')
+    words = gsub('[^a-zA-Z]*', '', words)
+    words = tolower(words)
+    words = words[!(words == '')]
+}
+
 # number of unique words used per song
 get_num_unique_words = function(lyric) {
     return(length(table(get_words(lyric))))
@@ -99,10 +112,32 @@ create_data = function(data) {
     data$num_unique = sapply(data[,"lyrics"], get_num_unique_words)
     data$num_commas = sapply(data[,"lyrics"], get_num_of_commas)
     data$num_words_total = sapply(data[,"lyrics"], get_num_words_in_lyric)
+    data$lyrics = NULL
     return(data)
 }
 
 data = create_data(data)
+```
+
+### Data Exploration
+
+```{r}
+
+  barplot(head(sort(table(data$artist), decreasing = T), 5), horiz = T, las = 1, xlab = "Number of songs per artist", ylab = "Artist")
+
+```
+
+```{r}
+  mfrow = c(1,4)
+  par(mfrow)
+  
+  eminem = colMeans(data[data$artist == "eminem", c("num_words_total", "num_unique", "words_line", "num_lines", "num_commas")])
+  
+  barplot(eminem, horiz = T, las = 1)
+  
+  chrisBrown = colMeans(data[data$artist == "chris-brown", c("num_words_total", "num_unique", "words_line", "num_lines", "num_commas")])
+  
+  barplot(chrisBrown, horiz = T, las = 1)
 ```
 
 ## Creating our models Knn and classification tree
@@ -130,14 +165,14 @@ tr_dat = data_sets[[1]]
 test_dat = data_sets[[2]]
 
 # create models
-library(rpart)
-library(rpart.plot)
-source('lin-regr-util.R')
 
 x = split_data(data)
 tr_dat = x[[1]]
 te_dat = x[[2]]
 
+tree = rpart(artist ~ ., data = tr_dat, method='class')
+
+knn_model = train(artist ~ ., data = tr_dat, method="knn", tuneLength = 10)
 ```
 
 ## Evaluating the Knn model
@@ -148,14 +183,17 @@ fit = cmdscale(d)
 plot(fit[data$artist == 'chris-brown'], col='orange')
 points(fit[data$artist == 'eminem'], col='green')
 # do a summary
+summary(knn_model)
 # test accuracy
+predicted_knn = predict(knn_model, newdata=te_dat)
+table(te_dat$artist, predicted_knn)
+mean(te_dat$artist == predicted_knn)
 ```
 
 ## Evaluating the classification tree model
 ```{r}
 # make a graph
-tree = rpart(artist ~ ., data = tr_dat, method='class')
-prp(tree, extra=106, varlen=-10, main="Decide whether a song is by Eminem or Childish Gambino", box.col=c("brickred", "lightblue")[tree$frame$yval])
+prp(tree, extra=106, varlen=-10, main="Decide whether a song is by Eminem or Chris Brown", box.col=c("red4", "lightblue")[tree$frame$yval])
 
 # do a summary
 summary(tree)
