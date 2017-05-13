@@ -14,7 +14,7 @@ knitr::opts_chunk$set(prompt=TRUE, comment="", echo=TRUE)
 Given top 100 Hip-Hop artist lyrical data, we plan to create and compare both 
 the usage of a Knn classifier and classification tree
 
-## Data exploration
+## Data Acquisition
 ```{r}
 
 # read origional csv file
@@ -123,21 +123,23 @@ data = create_data(data)
 
 ```{r}
 
-  barplot(head(sort(table(data$artist), decreasing = T), 5), horiz = T, las = 1, xlab = "Number of songs per artist", ylab = "Artist")
+  barplot(head(sort(table(data$artist), decreasing = T), 4), horiz = T, las = 1, xlab = "Number of songs per artist", ylab = "Artist", col = c("green4", "red4", "blue4", "orange4"), main = "Number of songs per top 4 artists")
 
 ```
 
+
+### Comparing features sizes for top 2 artists
 ```{r}
   mfrow = c(1,4)
   par(mfrow)
   
   eminem = colMeans(data[data$artist == "eminem", c("num_words_total", "num_unique", "words_line", "num_lines", "num_commas")])
   
-  barplot(eminem, horiz = T, las = 1)
+  barplot(eminem, horiz = T, las = 1, col = c("green4", "red4", "blue4", "orange4", "pink4"), main = "Comparing feature sizes for Eminem")
   
   chrisBrown = colMeans(data[data$artist == "chris-brown", c("num_words_total", "num_unique", "words_line", "num_lines", "num_commas")])
   
-  barplot(chrisBrown, horiz = T, las = 1)
+  barplot(chrisBrown, horiz = T, las = 1, col =  c("green4", "red4", "blue4", "orange4", "pink4"), main = "Comparing feature sizes for Chris Brown")
 ```
 
 ## Creating our models Knn and classification tree
@@ -164,8 +166,7 @@ data_sets = split_data(data, c(0.80, 0.20))
 tr_dat = data_sets[[1]]
 test_dat = data_sets[[2]]
 
-# create models
-
+# creating models
 x = split_data(data)
 tr_dat = x[[1]]
 te_dat = x[[2]]
@@ -173,15 +174,16 @@ te_dat = x[[2]]
 tree = rpart(artist ~ ., data = tr_dat, method='class')
 
 knn_model = train(artist ~ ., data = tr_dat, method="knn", tuneLength = 10)
+
 ```
 
 ## Evaluating the Knn model
-```{r}
-# make a graph
 
-# do a summary
+Training tests on different number of k values and the k value with the best accuracy is chosen. Here we see that k = 11 gives the best accuracy.
+```{r}
+plot(knn_model, main = "Accuray vs. Knn value")
+
 summary(knn_model)
-# test accuracy
 predicted_knn = predict(knn_model, newdata=te_dat)
 table(te_dat$artist, predicted_knn)
 mean(te_dat$artist == predicted_knn)
@@ -189,13 +191,10 @@ mean(te_dat$artist == predicted_knn)
 
 ## Evaluating the classification tree model
 ```{r}
-# make a graph
 prp(tree, extra=106, varlen=-10, main="Decide whether a song is by Eminem or Chris Brown", box.col=c("red4", "lightblue")[tree$frame$yval])
 
-# do a summary
 summary(tree)
 
-# test accuracy
 pred = predict(tree, te_dat, type='class')
 table(te_dat$artist, pred)
 mean(te_dat$artist == pred)
